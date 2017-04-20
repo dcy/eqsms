@@ -1,0 +1,18 @@
+{application, eqsms,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, { eqsms_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    hackney,
+    eutil
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {maintainers, []},
+  {licenses, []},
+  {links, []}
+ ]}.
