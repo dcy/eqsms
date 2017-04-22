@@ -21,7 +21,7 @@ send_sms(Sdkappid, Appkey, NationCode, Mobile, Msg) ->
     Tel = #{nationcode => eutil:to_binary(NationCode), mobile => eutil:to_binary(Mobile)},
     Payload = #{tel => Tel, type => 0, msg => Msg, sig => eutil:to_binary(Sig), time => Time},
     Result = eutil:http_post(URL, ?URLENCEDED_HEADS, eutil:json_encode(Payload)),
-    handle_result(Result).
+    handle_result(Mobile, Result).
 
 
 send_isms(Tel, Msg) ->
@@ -38,7 +38,7 @@ send_isms(Sdkappid, Appkey, Tel, Msg) ->
     Sig = gen_isms_sig(Appkey, Random, Time, Tel),
     Payload = #{tel => eutil:to_binary(Tel), type => 0, msg => Msg, sig => eutil:to_binary(Sig), time => Time},
     Result = eutil:http_post(URL, ?URLENCEDED_HEADS, eutil:json_encode(Payload)),
-    handle_result(Result).
+    handle_result(Tel, Result).
 
 send_multi_sms(Tels, Msg) ->
     {ok, Sdkappid} = application:get_env(eqsms, sdkappid),
@@ -54,7 +54,7 @@ send_multi_sms(Sdkappid, Appkey, Tels, Msg) ->
     Sig = gen_multi_sig(Appkey, Random, Time, Tels),
     Payload = #{tel => Tels, type => 0, msg => Msg, sig => eutil:to_binary(Sig), time => Time},
     Result = eutil:http_post(URL, ?URLENCEDED_HEADS, eutil:json_encode(Payload)),
-    handle_result(Result).
+    handle_result(Tels, Result).
 
 
 gen_sms_sig(Appkey, Random, Time, Mobile) ->
@@ -75,10 +75,13 @@ gen_multi_sig(Appkey, Random, Time, Tels) ->
     ?TRACE_VAR(Str),
     sha256_digest(Str).
 
-handle_result(Result) ->
+handle_result(Mobile, Result) ->
     case maps:get(<<"result">>, Result) of
-        ?SUCCESS_0 -> {ok, Result};
-        _ -> {error, Result}
+        ?SUCCESS_0 ->
+            {ok, Result};
+        _ ->
+            ?ERROR_MSG("eqsms send error, Mobile: ~p, Result: ~p", [Mobile, Result]),
+            {error, Result}
     end.
 
     
