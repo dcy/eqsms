@@ -72,7 +72,6 @@ gen_multi_sig(Appkey, Random, Time, Tels) ->
     StrMobile = string:join(Mobiles, ","),
     %Str = hackney_url:qs([{appkey, Appkey}, {random, Random}, {time, Time}, {mobile, StrMobile}]),
     Str = special_urlencode([{appkey, Appkey}, {random, Random}, {time, Time}, {mobile, StrMobile}]),
-    ?TRACE_VAR(Str),
     sha256_digest(Str).
 
 handle_result(Mobile, Result) ->
@@ -80,13 +79,11 @@ handle_result(Mobile, Result) ->
         ?SUCCESS_0 ->
             {ok, Result};
         _ ->
-            ?ERROR_MSG("eqsms send error, Mobile: ~p, Result: ~p", [Mobile, Result]),
+            %?ERROR_MSG("eqsms send error, Mobile: ~p, Result: ~p", [Mobile, Result]),
+            error_logger:error_msg("eqsms send error, Mobile: ~p, Result: ~p", [Mobile, Result]),
             {error, Result}
     end.
 
-    
-
-    
 
 
 
